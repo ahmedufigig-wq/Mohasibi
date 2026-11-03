@@ -10,11 +10,6 @@ import java.security.SecureRandom;
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
 import android.util.Base64;
-import android.webkit.JavascriptInterface;
-import java.security.SecureRandom;
-import javax.crypto.SecretKeyFactory;
-import javax.crypto.spec.PBEKeySpec;
-import android.util.Base64;
 import android.view.View;
 import android.graphics.Color;
 
@@ -28,7 +23,6 @@ public class MainActivity extends Activity {
         web = new WebView(this);
         web.setBackgroundColor(Color.rgb(9, 16, 29));
         web.getSettings().setJavaScriptEnabled(true);
-        web.addJavascriptInterface(new SecurityBridge(), "MohasibiSecurity");
         web.addJavascriptInterface(new SecurityBridge(), "MohasibiSecurity");
         web.getSettings().setDomStorageEnabled(true);
         web.getSettings().setAllowFileAccess(true);
@@ -51,20 +45,6 @@ public class MainActivity extends Activity {
                 byte[] hash = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256").generateSecret(spec).getEncoded();
                 spec.clearPassword();
                 return Base64.encodeToString(hash, Base64.NO_WRAP);
-            } catch (Exception e) { return ""; }
-        }
-    }
-    public class SecurityBridge {
-        @JavascriptInterface public String newSalt() {
-            byte[] salt = new byte[16]; new SecureRandom().nextBytes(salt);
-            return Base64.encodeToString(salt, Base64.NO_WRAP);
-        }
-        @JavascriptInterface public String hashPassword(String password, String saltText) {
-            try {
-                byte[] salt = Base64.decode(saltText, Base64.DEFAULT);
-                PBEKeySpec spec = new PBEKeySpec(password.toCharArray(), salt, 120000, 256);
-                byte[] hash = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256").generateSecret(spec).getEncoded();
-                spec.clearPassword(); return Base64.encodeToString(hash, Base64.NO_WRAP);
             } catch (Exception e) { return ""; }
         }
         @JavascriptInterface public void exitApp() { runOnUiThread(() -> finish()); }
